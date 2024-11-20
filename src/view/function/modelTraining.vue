@@ -35,8 +35,7 @@
             :key="index"
             :label="index"
           >
-            <!-- 使用 index 作为 label -->
-            {{ index }}: {{ item }} <!-- 显示序号和对应的值 -->
+            {{ index }}: {{ item }}
           </el-checkbox>
         </el-checkbox-group>
         <br />
@@ -69,7 +68,28 @@ export default {
     this.GetSign();
   },
   methods: {
-
+    training(){
+      let params={
+        pattern:this.pattern,
+        value:this.addedCombinations,
+      }
+      this.$axios.post('/user/training', params).then(res =>{
+        console.log(params.KnowledgeKernel)
+        if(res.data.code === 1){
+          this.$notify({
+            title:'提示',
+            message:'领域核特征表已更新',
+            type:'success'
+          })}
+        else {
+          this.$notify({
+            title: '警告',
+            message: '无法获取数据',
+            type: 'warning'
+          })
+        }
+      })
+    },
     addCombination() {
       if (this.checkList.length > 0) {
         this.addedCombinations.push([...this.checkList]); // 保存当前选择
@@ -90,9 +110,6 @@ export default {
     },
     removeCombination(index) {
       this.addedCombinations.splice(index, 1); // 删除指定组合
-    },
-    training(){
-      this.GetSign();
     },
     GetSign(){
       this.$axios.post('/user/getSign').then(res => {

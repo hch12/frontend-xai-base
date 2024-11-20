@@ -321,7 +321,7 @@ export default {
       let params={
         value:this.value4
       }
-      console.log('发送的参数:', params);
+
       this.$axios.post('/user/getPositiveKernel', params).then(res => {
         if (res.data.code === 1) {
           const responseData = JSON.parse(res.data.data);
