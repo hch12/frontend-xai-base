@@ -122,11 +122,11 @@ export default new Router({
           name: '训练模型',
           component:ModelTraining,
         },
-        {
-          path: '/attribute/dataUpload',
-          name: '数据集上传',
-          component:DataUpload,
-        },
+        // {
+        //   path: '/attribute/dataUpload',
+        //   name: '数据集上传',
+        //   component:DataUpload,
+        // },
         {
           path:'/Steps',
           name:'步骤',

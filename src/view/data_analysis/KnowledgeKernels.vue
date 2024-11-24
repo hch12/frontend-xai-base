@@ -1,4 +1,5 @@
 <!-- KnowledgeKernels.vue -->
+<template>
     <div>
       <div class="centered-content">
         <h1 style="font-size: 35px; font-family: Gabriola">添加领域特征</h1>
@@ -34,18 +35,21 @@
       <br>
       <el-button type="primary" @click="GetKnowledgeKernel">获取领域核特征</el-button>
     </div>
-
+</template>
 
 <script>
 export default {
+  // props:['dialogVisible','checkList','options','addedCombinations','addedValues'],
   name: "KnowledgeKernels",
-  data:{
+  data(){
+    return{
     //领域特征变量
     dialogVisible: false,
     checkList: [], // 保存用户选择的序号
     options: [], // 数组中的实际值
     addedCombinations: [], // 保存添加的组合
     addedValues: [], // 保存添加的值
+    }
 },
   mounted() {
     this.GetSign()

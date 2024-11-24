@@ -1,111 +1,117 @@
 
-        <div class="upload-section">
-          <!-- 文件上传部分 -->
-          <el-row>
-            <el-col :span="6">
-              <el-input
-                placeholder="请选择文件"
-                v-model="uploadForm.inputFile"
-                :disabled="true"
-              ></el-input>
-            </el-col>
-            <el-col :span="10">
-              <el-upload
-                class="upload-demo"
-                ref="upload"
-                action=""
-                :http-request="customUpload"
-                :show-file-list="false"
-                accept=".xlsx"
-                :before-upload="beforeUpload"
-                :on-change="handleSelectFile"
-                :auto-upload="false"
-              >
-                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传</el-button>
-                <el-button style="margin-left: 10px;" size="small" type="success" @click="fetchData(1)">展示</el-button>
-                <div slot="tip" class="el-upload__tip">仅支持 .xlsx 文件</div>
-              </el-upload>
-            </el-col>
-          </el-row>
-        </div>
+<template>
+<div>
+    <h1>属性分而治之平台</h1>
+    <!-- 上传步骤 -->
+    <div>
+      <br>
+      <!-- 文件上传部分 -->
+      <el-row>
+        <el-col :span="6">
+          <el-input
+            placeholder="请选择文件"
+            v-model="uploadForm.inputFile"
+            :disabled="true"
+          ></el-input>
+        </el-col>
+        <el-col :span="10">
+          <el-upload
+            class="upload-demo"
+            ref="upload"
+            action=""
+            :http-request="customUpload"
+            :show-file-list="false"
+            accept=".xlsx"
+            :before-upload="beforeUpload"
+            :on-change="handleSelectFile"
+            :auto-upload="false"
+          >
+            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传</el-button>
+            <el-button style="margin-left: 10px;" size="small" type="success" @click="fetchData(1)">展示</el-button>
+            <div slot="tip" class="el-upload__tip">仅支持 .xlsx 文件</div>
+          </el-upload>
+        </el-col>
+      </el-row>
+    </div>
 
-        <!-- 数据展示 -->
-        <div v-if="showAnalysis" class="data-display">
-          <h2>数据集展示</h2>
-          <el-table :data="tableData" border style="width: 100%">
-            <el-table-column
-              v-for="(header, index) in tableHeaders"
-              :key="index"
-              :label="header.label"
-              :prop="header.prop"
-              :min-width="150"
-            ></el-table-column>
-          </el-table>
-        </div>
+    <!-- 数据展示 -->
+    <div v-if="showAnalysis" class="data-display">
+      <h2>数据集展示</h2>
+      <el-table :data="tableData" border style="width: 100%">
+        <el-table-column
+          v-for="(header, index) in tableHeaders"
+          :key="index"
+          :label="header.label"
+          :prop="header.prop"
+          :min-width="150"
+        ></el-table-column>
+      </el-table>
+    </div>
 
-        <!-- 分页 -->
-        <div class="pagination-section">
-          <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="pagination.currentPage"
-            :page-sizes="[10, 20, 50, 100]"
-            :page-size="pagination.pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="pagination.total"
-          ></el-pagination>
-        </div>
+    <!-- 分页 -->
+    <div class="pagination-section">
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="pagination.currentPage"
+        :page-sizes="[10, 20, 50, 100]"
+        :page-size="pagination.pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="pagination.total"
+      ></el-pagination>
+    </div>
 
-        <div class="statistics">
-          <h2>数据集情况统计</h2>
-          <p>共 {{ tableHeaders.length }} 个特征</p>
-          <p>特征数量：条件属性 {{ conditionAttributeCount }} 个，决策属性 {{ decisionAttributeCount }} 个</p>
+    <div class="statistics">
+      <h2>数据集情况统计</h2>
+      <h3>特征数量</h3>
+      <p>共 {{ tableHeaders.length }} 个特征</p>
+      <p>特征数量：条件属性 {{ conditionAttributeCount }} 个，决策属性 {{ decisionAttributeCount }} 个</p>
 
-          <el-row :gutter="20">
-            <!-- 条件属性 -->
-            <el-col :span="12">
-              <h3>条件属性</h3>
-              <el-select v-model="selectedConditionAttribute" placeholder="请选择条件属性" @change="updateConditionStatistics">
-                <el-option
-                  v-for="attr in conditionAttributes"
-                  :key="attr.value"
-                  :label="attr.label"
-                  :value="attr.value"
-                ></el-option>
-              </el-select>
-              <div v-if="conditionStatistics">
-                <p>最大值：{{ conditionStatistics.max }}</p>
-                <p>最小值：{{ conditionStatistics.min }}</p>
-                <p>平均值：{{ conditionStatistics.avg }}</p>
-                <p>中位数：{{ conditionStatistics.median }}</p>
-                <p>非空值个数：{{ conditionStatistics.nullCount }}</p>
-              </div>
-            </el-col>
+      <el-row :gutter="20">
+        <!-- 条件属性 -->
+        <el-col :span="12">
+          <h3>条件属性</h3>
+          <el-select v-model="selectedConditionAttribute" placeholder="请选择条件属性" @change="updateConditionStatistics">
+            <el-option
+              v-for="attr in conditionAttributes"
+              :key="attr.value"
+              :label="attr.label"
+              :value="attr.value"
+            ></el-option>
+          </el-select>
+          <div v-if="conditionStatistics">
+            <p>最大值：{{ conditionStatistics.max }}</p>
+            <p>最小值：{{ conditionStatistics.min }}</p>
+            <p>平均值：{{ conditionStatistics.avg }}</p>
+            <p>中位数：{{ conditionStatistics.median }}</p>
+            <p>非空值个数：{{ conditionStatistics.nullCount }}</p>
+          </div>
+        </el-col>
 
-            <!-- 决策属性 -->
-            <el-col :span="12">
-              <h3>决策属性</h3>
-              <el-select v-model="selectedDecisionAttribute" placeholder="请选择决策属性" @change="updateDecisionStatistics">
-                <el-option
-                  v-for="attr in decisionAttributes"
-                  :key="attr.value"
-                  :label="attr.label"
-                  :value="attr.value"
-                ></el-option>
-              </el-select>
-              <div v-if="decisionStatistics">
-                <p>最大值：{{ decisionStatistics.max }}</p>
-                <p>最小值：{{ decisionStatistics.min }}</p>
-                <p>平均值：{{ decisionStatistics.avg }}</p>
-                <p>中位数：{{ decisionStatistics.median }}</p>
-                <p>非空值个数：{{ decisionStatistics.nullCount }}</p>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
-        <el-button type="primary" @click="addActive12">上传领域特征</el-button>
-
+        <!-- 决策属性 -->
+        <el-col :span="12">
+          <h3>决策属性</h3>
+          <el-select v-model="selectedDecisionAttribute" placeholder="请选择决策属性" @change="updateDecisionStatistics">
+            <el-option
+              v-for="attr in decisionAttributes"
+              :key="attr.value"
+              :label="attr.label"
+              :value="attr.value"
+            ></el-option>
+          </el-select>
+          <div v-if="decisionStatistics">
+            <p>最大值：{{ decisionStatistics.max }}</p>
+            <p>最小值：{{ decisionStatistics.min }}</p>
+            <p>平均值：{{ decisionStatistics.avg }}</p>
+            <p>中位数：{{ decisionStatistics.median }}</p>
+            <p>非空值个数：{{ decisionStatistics.nullCount }}</p>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+  </div>
+</template>
 
 
 <script>
@@ -130,8 +136,6 @@ export default {
       tableData: [],
       showAnalysis: false,
       searchQuery: "",
-      active1:0,
-      active12:0,
       pagination: {
         currentPage: 1,
         pageSize: 10,
@@ -303,11 +307,12 @@ export default {
       const selectedAttribute = this.decisionAttributes.find((attr) => attr.value === attribute);
       this.decisionStatistics = selectedAttribute ? selectedAttribute.statistics : {};
     },
+
+
   },
   mounted() {
     this.fetchData();
     this.fetchStatistics();
-    this.GetSign()
   }
 
 };
@@ -353,9 +358,3 @@ h2 {
 
 
 </style>
-
-
-
-
-
-
