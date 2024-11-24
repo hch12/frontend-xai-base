@@ -23,6 +23,7 @@ import AreaKernel from "@/view/function/areaKernel";
 import ModelTraining from "@/view/function/modelTraining";
 
 import DataUpload from "../view/data_analysis/DataUpload";
+import Steps from "../view/function/Steps";
 
 Vue.use(Router)
 
@@ -126,6 +127,11 @@ export default new Router({
           name: '数据集上传',
           component:DataUpload,
         },
+        {
+          path:'/Steps',
+          name:'步骤',
+          component:Steps
+        }
       ]
     }
   ]
