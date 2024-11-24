@@ -21,6 +21,9 @@ import FileUpload from '@/view/demo/FileUpload.vue'
 import FeatureTable from "@/view/function/FeatureTable.vue";
 import AreaKernel from "@/view/function/areaKernel";
 import ModelTraining from "@/view/function/modelTraining";
+
+import DataUpload from "../view/data_analysis/DataUpload";
+
 Vue.use(Router)
 
 export default new Router({
@@ -117,6 +120,11 @@ export default new Router({
           path: '/modelTraining',
           name: '训练模型',
           component:ModelTraining,
+        },
+        {
+          path: '/attribute/dataUpload',
+          name: '数据集上传',
+          component:DataUpload,
         },
       ]
     }

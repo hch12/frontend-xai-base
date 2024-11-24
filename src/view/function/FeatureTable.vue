@@ -25,10 +25,6 @@
           </el-select>
         </template>
 
-        <template>
-          <el-button class="button-container" type="primary" icon="el-icon-download">下载</el-button>
-        </template>
-
         <el-table
           :data="tableData1"
           border
@@ -321,7 +317,7 @@ export default {
       let params={
         value:this.value4
       }
-
+      console.log('发送的参数:', params);
       this.$axios.post('/user/getPositiveKernel', params).then(res => {
         if (res.data.code === 1) {
           const responseData = JSON.parse(res.data.data);
@@ -342,8 +338,5 @@ export default {
 <style>
 .select{
   margin:5px 10px 10px 5px;
-}
-/deep/ .button-container {
-  text-align: right;
 }
 </style>
