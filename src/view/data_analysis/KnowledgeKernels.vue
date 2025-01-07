@@ -34,13 +34,185 @@
     <br>
     <br>
     <el-button type="primary" @click="GetKnowledgeKernel">获取领域核特征</el-button>
-    <div >
-      <h2 display="false">领域核特征展示</h2>
+    <div v-show="GET">
+      <h2>领域核特征展示</h2>
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="GPR领域核特征" name="first">GPR领域核特征</el-tab-pane>
-        <el-tab-pane label="MLR领域核特征" name="second">MLR领域核特征</el-tab-pane>
-        <el-tab-pane label="KNN领域核特征" name="third">KNN领域核特征</el-tab-pane>
-        <el-tab-pane label="SVM领域核特征" name="fourth">SVM领域核特征</el-tab-pane>
+        <el-tab-pane label="GPR领域核特征" name="first">
+          <h3>GPR领域核特征</h3>
+          <br>
+          <el-button type="primary" @click="downloadFiles('GPR')">下载</el-button>
+          <br>
+          <br>
+          <div>
+            <!-- 遍历 group 数组 -->
+            <div v-for="(item, index) in group" :key="index">
+              <!-- 每个 group 显示一个表格 -->
+              <h4>
+                第 {{ index + 1 }} 组: {{ getCombinationLabels(item).join(' + ') }}
+              </h4>
+              <el-table :data="gpr_analysis[index]" >
+                <el-table-column prop="轮次" label="轮次" width="130">
+                  <!-- 使用 v-for 遍历每一行，设置轮次 -->
+                  <template slot-scope="scope">{{ scope.$index + 1 }}</template>
+                </el-table-column>
+                <el-table-column prop="CV RMSE" label="CV RMSE" width="130"></el-table-column>
+                <el-table-column prop="Test RMSE" label="Test RMSE" width="130"></el-table-column>
+                <el-table-column prop="Test R2" label="Test R2" width="130"></el-table-column>
+              </el-table>
+            </div>
+            <div>
+              <h3>结果选择</h3>
+
+              <el-table :data="gpr_result" border style="width: 100%">
+                <el-table-column prop="轮次" label="轮次" width="130">
+                  <!-- 使用 v-for 遍历每一行，设置轮次 -->
+                  <template slot-scope="scope">{{ scope.$index + 1 }}</template>
+                </el-table-column>
+                <el-table-column label="领域核特征" width="300">
+                <template slot-scope="scope">{{ getCombinationLabels(group[scope.row.group]).join(' + ')}}</template>
+              </el-table-column>
+                <el-table-column label="CV RMSE" prop="CV RMSE" width="180">
+                </el-table-column>
+                <el-table-column label="Test RMSE" prop="Test RMSE" width="180">
+                </el-table-column>
+                <el-table-column label="Test R2" prop="Test R2" width="180">
+                </el-table-column>
+
+              </el-table>
+
+            </div>
+          </div>
+
+        </el-tab-pane>
+        <el-tab-pane label="MLR领域核特征" name="second">
+          <h3>MLR领域核特征</h3>
+          <br>
+          <el-button type="primary" @click="downloadFiles('MLR')">下载</el-button>
+          <br>
+          <br>
+          <div v-for="(item, index) in group" :key="index">
+            <!-- 每个 group 显示一个表格 -->
+            <h4>
+              第 {{ index + 1 }} 组: {{ getCombinationLabels(item).join(' + ') }}
+            </h4>
+            <el-table :data="mlr_analysis[index]" >
+              <el-table-column prop="轮次" label="轮次" width="130">
+                <!-- 使用 v-for 遍历每一行，设置轮次 -->
+                <template slot-scope="scope">{{ scope.$index + 1 }}</template>
+              </el-table-column>
+              <el-table-column prop="CV RMSE" label="CV RMSE" width="130"></el-table-column>
+              <el-table-column prop="Test RMSE" label="Test RMSE" width="130"></el-table-column>
+              <el-table-column prop="Test R2" label="Test R2" width="130"></el-table-column>
+            </el-table>
+          </div>
+          <div>
+
+          <h3>结果选择</h3>
+          <el-table :data="mlr_result" border style="width: 100%">
+            <el-table-column prop="轮次" label="轮次" width="130">
+              <!-- 使用 v-for 遍历每一行，设置轮次 -->
+              <template slot-scope="scope">{{ scope.$index + 1 }}</template>
+            </el-table-column>
+            <el-table-column label="领域核特征" width="300">
+              <template slot-scope="scope">{{ getCombinationLabels(group[scope.row.group]).join(' + ')}}</template>
+            </el-table-column>
+            <el-table-column label="CV RMSE" prop="CV RMSE" width="180">
+            </el-table-column>
+            <el-table-column label="Test RMSE" prop="Test RMSE" width="180">
+            </el-table-column>
+            <el-table-column label="Test R2" prop="Test R2" width="180">
+            </el-table-column>
+          </el-table>
+
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="KNN领域核特征" name="third">
+          <h3>KNN领域核特征</h3>
+          <br>
+          <el-button type="primary" @click="downloadFiles('KNN')">下载</el-button>
+          <br>
+          <br>
+          <div v-for="(item, index) in group" :key="index">
+            <!-- 每个 group 显示一个表格 -->
+            <h4>
+              第 {{ index + 1 }} 组: {{ getCombinationLabels(item).join(' + ') }}
+            </h4>
+            <el-table :data="knn_analysis[index]" >
+              <el-table-column prop="轮次" label="轮次" width="130">
+                <!-- 使用 v-for 遍历每一行，设置轮次 -->
+                <template slot-scope="scope">{{ scope.$index + 1 }}</template>
+              </el-table-column>
+              <el-table-column prop="CV RMSE" label="CV RMSE" width="130"></el-table-column>
+              <el-table-column prop="Test RMSE" label="Test RMSE" width="130"></el-table-column>
+              <el-table-column prop="Test R2" label="Test R2" width="130"></el-table-column>
+            </el-table>
+          </div>
+
+          <h3>结果选择</h3>
+          <div>
+          <el-table :data="knn_result" border style="width: 100%">
+            <el-table-column prop="轮次" label="轮次" width="130">
+              <!-- 使用 v-for 遍历每一行，设置轮次 -->
+              <template slot-scope="scope">{{ scope.$index + 1 }}</template>
+            </el-table-column>
+            <el-table-column label="领域核特征" width="300">
+              <template slot-scope="scope">{{ getCombinationLabels(group[scope.row.group]).join(' + ')}}</template>
+            </el-table-column>
+            <el-table-column label="CV RMSE" prop="CV RMSE" width="180">
+            </el-table-column>
+            <el-table-column label="Test RMSE" prop="Test RMSE" width="180">
+            </el-table-column>
+            <el-table-column label="Test R2" prop="Test R2" width="180">
+            </el-table-column>
+
+          </el-table>
+          </div>
+
+        </el-tab-pane>
+        <el-tab-pane label="SVR领域核特征" name="fourth">
+          <h3>SVM领域核特征</h3>
+          <br>
+          <el-button type="primary" @click="downloadFiles('SVR')">下载</el-button>
+          <br>
+          <br>
+          <div v-for="(item, index) in group" :key="index">
+            <!-- 每个 group 显示一个表格 -->
+            <h4>
+              第 {{ index + 1 }} 组: {{ getCombinationLabels(item).join(' + ') }}
+            </h4>
+            <el-table :data="svr_analysis[index]" >
+              <el-table-column prop="轮次" label="轮次" width="130">
+                <!-- 使用 v-for 遍历每一行，设置轮次 -->
+                <template slot-scope="scope">{{ scope.$index + 1 }}</template>
+              </el-table-column>
+              <el-table-column prop="CV RMSE" label="CV RMSE" width="130"></el-table-column>
+              <el-table-column prop="Test RMSE" label="Test RMSE" width="130"></el-table-column>
+              <el-table-column prop="Test R2" label="Test R2" width="130"></el-table-column>
+            </el-table>
+          </div>
+
+          <div>
+
+            <h3>结果选择</h3>
+            <el-table :data="svr_result" border style="width: 100%">
+              <el-table-column prop="轮次" label="轮次" width="130">
+                <!-- 使用 v-for 遍历每一行，设置轮次 -->
+                <template slot-scope="scope">{{ scope.$index + 1 }}</template>
+              </el-table-column>
+              <el-table-column label="领域核特征" width="300">
+                <template slot-scope="scope">{{ getCombinationLabels(group[scope.row.group]).join(' + ')}}</template>
+              </el-table-column>
+              <el-table-column label="CV RMSE" prop="CV RMSE" width="180">
+              </el-table-column>
+              <el-table-column label="Test RMSE" prop="Test RMSE" width="180">
+              </el-table-column>
+              <el-table-column label="Test R2" prop="Test R2" width="180">
+              </el-table-column>
+            </el-table>
+
+          </div>
+
+        </el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -48,6 +220,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: "KnowledgeKernels",
   data(){
@@ -58,6 +231,20 @@ export default {
       options: [], // 数组中的实际值
       addedCombinations: [], // 保存添加的组合
       addedValues: [], // 保存添加的值
+      GET:false,
+      activeName: 'first',
+      group:[],
+      knn_analysis:[],
+      gpr_analysis:[],
+      svr_analysis:[],
+      mlr_analysis:[],
+      knn_result:[],
+      gpr_result:[],
+      svr_result:[],
+      mlr_result:[],
+      originTitle: ['', '数量', '均分'], // 原始标题
+      transTitle: ['题型', '学生1', '学生2', '学生3'], // 转化后的标题
+      transData: [], // 转化后的数据
     }
   },
   mounted() {
@@ -66,25 +253,51 @@ export default {
   methods: {
     // 领域特征函数
     GetKnowledgeKernel() {
-      let params = {
-        V: this.addedCombinations,
-      };
-      this.$axios.post('/user/training', params).then(res => {
-        console.log(params.V);
-        if (res.data.code === 1) {
-          this.$notify({
-            title: '提示',
-            message: '领域核特征表已更新',
-            type: 'success'
-          });
-        } else {
-          this.$notify({
-            title: '警告',
-            message: '无法获取数据',
-            type: 'warning'
-          });
-        }
-      });
+      if (this.addedCombinations.length!=0) {
+        this.group=this.addedCombinations;
+        let params = {
+          V: this.addedCombinations,
+        };
+        this.$axios.post('/user/training', params).then(res => {
+          if (res.data.code === 1) {
+            this.GET = true
+            this.$notify({
+              title: '提示',
+              message: '领域核特征表已更新',
+              type: 'success'
+            });
+            const parsedData = JSON.parse(res.data.data)
+            const model_analysis = parsedData.ModelAnalysis
+            const result=parsedData.Result
+            console.log(parsedData)
+            console.log(model_analysis)
+            this.knn_analysis=model_analysis.KNN
+            this.gpr_analysis=model_analysis.GPR
+            this.mlr_analysis=model_analysis.MLR
+            this.svr_analysis=model_analysis.SVR
+            console.log(this.knn_analysis)
+            console.log(result)
+            this.knn_result=result.KNN
+            this.mlr_result=result.MLR
+            this.svr_result=result.SVR
+            this.gpr_result=result.GPR
+            console.log(this.gpr_result)
+          } else {
+            this.$notify({
+              title: '警告',
+              message: '无法获取数据',
+              type: 'warning'
+            });
+          }
+        })
+      }
+      else {
+        this.$notify({
+          title: '错误',
+          message: '领域特征为空',
+          type: 'error'
+        })
+      }
     },
 
     addCombination() {
@@ -123,13 +336,42 @@ export default {
         }
       })
     },
-  },
+    downloadFiles(choice) {
+      let param = {
+        address: choice
+      }
+      axios({
+        url: '/download/knowledge',  // 请求压缩文件下载接口
+        method: 'GET',
+        params: param,  // 传递文件名数组
+        responseType: 'blob',   // 设置响应类型为二进制流
+      }).then((response) => {
+        const blob = response.data;
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = choice + "领域核特征预测结果" + '.zip';  // 指定压缩包文件名
+        link.click();
+      }).catch((error) => {
+        console.error('文件下载失败:', error);
+      });
+    },
+    handleClick(tab, event) {
+      console.log(tab, event);
+    },
+    processResult(data) {
+      // 将对象中的每个项转为纯数据数组
+      return data.map(item => Object.values(item));
+    }
+  }
 };
 </script>
 <style scoped>
 h1,
-h2 {
+h2,
+h3 {
   text-align: center;
   color: #333;
 }
+
+
 </style>

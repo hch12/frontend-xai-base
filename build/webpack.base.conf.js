@@ -64,7 +64,19 @@ module.exports = {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
-      }
+      },
+      {
+        test: /\.(xlsx|xls)$/, // 匹配 .xlsx 文件
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'assets/[name].[hash:8].[ext]', // 输出文件的命名规则
+              esModule: false, // 确保能够通过 require 获取文件路径
+            },
+          },
+        ],
+      },
     ]
   },
   node: {

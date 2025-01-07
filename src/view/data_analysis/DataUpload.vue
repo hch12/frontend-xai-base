@@ -1,9 +1,8 @@
 
 <template>
 <div>
-    <h1>属性分而治之平台</h1>
     <!-- 上传步骤 -->
-    <div>
+    <div v-if=true>
       <br>
       <!-- 文件上传部分 -->
       <el-row>
@@ -26,9 +25,10 @@
             :on-change="handleSelectFile"
             :auto-upload="false"
           >
-            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-            <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传</el-button>
-            <el-button style="margin-left: 10px;" size="small" type="success" @click="fetchData(1)">展示</el-button>
+            <el-button slot="trigger" type="primary">选取文件<i class="el-icon-document el-icon--right"></i></el-button>
+            <el-button type="primary" @click="downloadTemplate">下载数据格式模板<i class="el-icon-download el-icon--right"></i></el-button>
+            <el-button type="primary" @click="submitUpload">上传<i class="el-icon-upload el-icon--right"></i></el-button>
+            <el-button size="primary" type="success" @click="fetchData(1)">展示</el-button>
             <div slot="tip" class="el-upload__tip">仅支持 .xlsx 文件</div>
           </el-upload>
         </el-col>
@@ -64,8 +64,15 @@
 
     <div class="statistics">
       <h2>数据集情况统计</h2>
+      <!-- 小提琴图加载 -->
+      <div v-loading="loading" element-loading-text="图片加载中..." class="image-container">
+        <img
+          :src="violinImageSrc"
+          style="max-width: 100%; margin-top: 20px;"
+          @load="onImageLoad" />
+      </div>
+
       <h3>特征数量</h3>
-      <p>共 {{ tableHeaders.length }} 个特征</p>
       <p>特征数量：条件属性 {{ conditionAttributeCount }} 个，决策属性 {{ decisionAttributeCount }} 个</p>
 
       <el-row :gutter="20">
@@ -142,6 +149,8 @@ export default {
         total: 0,
       },
       statistics: {}, // 用于存储统计信息
+      violinImageSrc: null,
+      loading: false,
     };
   },
   watch: {
@@ -220,6 +229,7 @@ export default {
           // console.log("分页数据：", list);
           this.pagination.total = response.data.Total;
           this.showAnalysis = true;
+          this.violin();
         } else {
           this.$message.warning("未获取到数据！");
         }
@@ -257,6 +267,8 @@ export default {
     async fetchStatistics() {
       try {
         const response = await this.$axios.get("/data/statistics");
+        console.log("统计数据：", response.data);
+
         const conditionData = response.data.condition || {};
         const decisionData = response.data.decision || {};
 
@@ -308,6 +320,40 @@ export default {
       this.decisionStatistics = selectedAttribute ? selectedAttribute.statistics : {};
     },
 
+    downloadTemplate() {
+      // 使用 require 来获取 Webpack 打包后的文件路径
+      const filePath = require('@/assets/template.xlsx');
+      const link = document.createElement('a');
+      link.href = filePath; // 使用 Webpack 打包后的文件路径
+      link.download = 'template.xlsx'; // 设置下载文件的默认名称
+      link.click(); // 触发下载
+    },
+
+    violin() {
+      this.loading = true;
+
+      this.$axios.get('/data/violin', { responseType: 'blob' })
+        .then(response => {
+          console.log("后端返回:", response);
+
+          // 将图片 Blob 转换为 URL
+          const blob = new Blob([response.data], { type: 'image/png' });
+          const objectURL = URL.createObjectURL(blob);
+
+          this.violinImageSrc = objectURL;
+          console.log("小提琴图数据：", this.violinImageSrc);
+        })
+        .catch(error => {
+          console.error("小提琴图生成失败:", error);
+          this.$message.error("小提琴图生成失败，请稍后重试。");
+        });
+    },
+
+    onImageLoad() {
+      // 图片加载完成后隐藏 loading 动效
+      this.loading = false;
+    }
+
 
   },
   mounted() {
@@ -354,6 +400,14 @@ h2 {
   text-align: center;
   font-size: 16px;
 }
+
+.image-container {
+  position: relative;
+  display: inline-block;  /* 确保容器只包裹图片的大小 */
+  width: 100%;            /* 容器宽度 */
+  text-align: center;     /* 居中显示加载动画 */
+}
+
 
 
 

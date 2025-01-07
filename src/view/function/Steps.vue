@@ -35,20 +35,24 @@
         <el-step title="正数据核特征识别"></el-step>
       </el-steps>
       <div v-if="active2 === 0">
-        <p>构建特征决策表</p>
+         <step1_featuretable/>
       </div>
       <div v-if="active2 === 1">
-        <p>特征决策表聚类</p>
+        <step2_cluster/>
       </div>
       <div v-if="active2 === 2">
-        <p>最简决策表构建</p>
+        <step3_simple_decision_table/>
       </div>
       <div v-if="active2 === 3">
-        <p>决策表求核</p>
+        <step4_kernel/>
       </div>
       <div v-if="active2 === 4">
-        <p>正数据核特征识别</p>
+        <step5_positive_kernel/>
       </div>
+    </div>
+
+    <div v-if="active1 === 2" class="sub-steps">
+      <Construction />
     </div>
 
     <!-- 子步骤 3：多方面构效关系分析 -->
@@ -104,9 +108,19 @@
 <script>
 import DataUpload from "../data_analysis/DataUpload";
 import KnowledgeKernels from "../data_analysis/KnowledgeKernels";
-
+import step1_featuretable from "../kernel_recognize/step1_featuretable";
+import step2_cluster from "../kernel_recognize/step2_cluster";
+import step3_simple_decision_table from "../kernel_recognize/step3_simple_decision_table";
+import step4_kernel from "../kernel_recognize/step4_kernel";
+import Step5_positive_kernel from "../kernel_recognize/step5_positive_kernel";
+import Construction from "../cluster/Construction";
+import SVR from "../relative_analysis/SVR";
 export default {
-  components: { KnowledgeKernels, DataUpload },
+  components: {
+    SVR,
+    Construction,
+    Step5_positive_kernel,
+    step4_kernel,step3_simple_decision_table,step1_featuretable, KnowledgeKernels, DataUpload,step2_cluster},
   data() {
     return {
       active1: 0, // 主步骤索引
@@ -146,6 +160,7 @@ export default {
     handleSelect(index) {
       const componentsMap = {
         "1-1": "MLR",
+        "3-1": "SVR"
       };
       this.currentComponent = componentsMap[index] || "MLR"; // 根据索引动态加载组件
     },
