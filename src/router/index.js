@@ -25,6 +25,7 @@ import ModelTraining from "@/view/function/modelTraining";
 import DataUpload from "../view/data_analysis/DataUpload";
 import Steps from "../view/function/Steps";
 import Construction from "../view/cluster/Construction";
+import SVR from "../view/relative_analysis/SVR";
 
 Vue.use(Router)
 
@@ -137,6 +138,11 @@ export default new Router({
           path:'/attribute/ccc',
           name:'特征团构建',
           component:Construction
+        },
+        {
+          path:'/attribute/bbb',
+          name:'SVR分析',
+          component:SVR
         },
       ]
     }

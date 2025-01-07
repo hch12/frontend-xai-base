@@ -116,8 +116,10 @@ import Step5_positive_kernel from "../kernel_recognize/step5_positive_kernel";
 import Construction from "../cluster/Construction";
 import MLR from "../relative_analysis/MLR";
 import MLR_analysis from "../relative_analysis/MLR_analysis";
+import SVR from "../relative_analysis/SVR";
 export default {
   components: {
+    SVR,
     MLR,
     MLR_analysis,
     Construction,
@@ -162,7 +164,8 @@ export default {
     handleSelect(index) {
       const componentsMap = {
         "1-1": "MLR",
-        "1-2": "MLR_analysis"
+        "1-2": "MLR_analysis",
+        "3-1": "SVR"
       };
       this.currentComponent = componentsMap[index] || "MLR"; // 根据索引动态加载组件
     },

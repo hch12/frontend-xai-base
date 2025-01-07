@@ -3,7 +3,7 @@
     <el-container>
       <el-main>
         <!-- 下拉选择框 -->
-        <el-select v-model="selectedItem" placeholder="请选择 ID" style="width: 300px">
+        <el-select v-model="selectedItem" placeholder="请选择最佳特征团" style="width: 300px">
           <el-option
             v-for="item in options"
             :key="item.Id"
@@ -12,24 +12,22 @@
           />
         </el-select>
 
-        <!-- 显示对应的 Features -->
-        <div v-if="selectedFeatures" style="margin: 10px 0">
-          <strong>对应 Features:</strong> {{ selectedFeatures }}
-        </div>
-
         <!-- 提交按钮 -->
         <el-button type="primary" @click="fetchImageUrls" style="margin-left: 10px">
           提交
         </el-button>
 
-        <div v-if="highDimensionalImageSrc">
-          <h3>highDimensionalImageSrc</h3>
-          <img :src="highDimensionalImageSrc" alt="特征团图片" style="max-width: 100%; margin-top: 20px;" />
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-top: 20px;">
+          <div v-if="lowDimensionalImageSrc" style="flex: 1; text-align: center;">
+            <h3 style="margin-bottom: 10px;">对低维空间的样本进行聚类</h3>
+            <img :src="lowDimensionalImageSrc" alt="特征团图片" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" />
+          </div>
+          <div v-if="highDimensionalImageSrc" style="flex: 1; text-align: center;">
+            <h3 style="margin-bottom: 10px;">对高维空间的样本进行聚类</h3>
+            <img :src="highDimensionalImageSrc" alt="特征团图片" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" />
+          </div>
         </div>
-        <div v-if="lowDimensionalImageSrc">
-          <h3>lowDimensionalImageSrc</h3>
-          <img :src="lowDimensionalImageSrc" alt="特征团图片" style="max-width: 100%; margin-top: 20px;" />
-        </div>
+
       </el-main>
     </el-container>
   </div>
@@ -38,6 +36,7 @@
 <script>
 
 export default {
+  name: "SVR",
   data() {
     return {
       options: [], // 存储从后端获取的数据
@@ -53,6 +52,7 @@ export default {
     async fetchData() {
       try {
         const response = await this.$axios.get("/relative/svr"); // 使用 this.$axios
+        console.log("收到的数据:", response.data);  // 打印收到的数据
         this.options = response.data.map((item) => ({
           Id: item.Id,
           Features: JSON.parse(item.Features), // 解析 Features 字符串为数组
@@ -61,6 +61,7 @@ export default {
         console.error("获取数据失败:", error);
       }
     },
+
 
     // 提交选中项到后端
     async fetchImageUrls() {
