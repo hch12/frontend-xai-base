@@ -28,6 +28,18 @@
           </div>
         </div>
 
+        <div
+          v-if="lowDimensionalImageSrc || highDimensionalImageSrc"
+          style="margin-top: 30px; padding: 20px; background-color: #f5f7fa; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+          <h3 style="margin-bottom: 15px; color: #303133;">特征团应用结果分析</h3>
+          <div v-if="FImageSrc" style="flex: 1; text-align: center;">
+            <img :src="FImageSrc" alt="特征团图片" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" />
+          </div>
+          <p style="line-height: 1.6; color: #606266;">
+            根据选择的特征团组合，系统通过SVR算法对样本数据进行聚类分析。左侧展示低维空间的聚类可视化结果，右侧展示高维空间的聚类分布。上图展示是一个基于ANOVA F检验的特征重要性排序图，用于展示不同特征对目标变量的区分能力。
+          </p>
+        </div>
+
       </el-main>
     </el-container>
   </div>
@@ -45,6 +57,7 @@ export default {
       images: [],
       highDimensionalImageSrc: null, // 高维度图片 URL
       lowDimensionalImageSrc: null, // 低维度图片 URL
+      FImageSrc: null
     };
   },
   methods: {
@@ -79,6 +92,7 @@ export default {
         // 获取返回的图片 URL
         const highDimensionalImageurl = response.data.highDimensionalImage;
         const lowDimensionalImageurl = response.data.lowDimensionalImage;
+        const FImageurl = response.data.FValueImage;
 
         if (!highDimensionalImageurl || !lowDimensionalImageurl) {
           this.$message.error("图片 URL 获取失败");
@@ -98,7 +112,7 @@ export default {
             // 设置图片的 URL 给前端展示
             this.highDimensionalImageSrc = objectURL;
 
-            this.$message.success("特征团应用成功！");
+            // this.$message.success("特征团应用成功！");
           })
           .catch(error => {
             console.error("失败:", error);
@@ -119,7 +133,29 @@ export default {
             // 设置图片的 URL 给前端展示
             this.lowDimensionalImageSrc = objectURL;
 
-            this.$message.success("特征团应用成功！");
+            // this.$message.success("特征团应用成功！");
+
+          })
+          .catch(error => {
+            console.error("失败:", error);
+            this.$message.error("失败，请稍后重试。");
+          });
+
+
+        this.$axios.get(FImageurl, {
+          responseType: 'blob' // 确保接收的是图片流
+        })
+          .then(response => {
+            console.log("特征团应用成功，后端返回:", response);
+
+            // 将图片 Blob 转换为 URL
+            const blob = new Blob([response.data], { type: 'image/png' });
+            const objectURL = URL.createObjectURL(blob);
+
+            // 设置图片的 URL 给前端展示
+            this.FImageSrc = objectURL;
+
+            // this.$message.success("特征团应用成功！");
 
           })
           .catch(error => {
