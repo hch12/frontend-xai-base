@@ -26,6 +26,7 @@ import DataUpload from "../view/data_analysis/DataUpload";
 import Steps from "../view/function/Steps";
 import Construction from "../view/cluster/Construction";
 import SVR from "../view/relative_analysis/SVR";
+import GPR from "../view/relative_analysis/GPR";
 
 Vue.use(Router)
 
@@ -143,6 +144,11 @@ export default new Router({
           path:'/attribute/bbb',
           name:'SVR分析',
           component:SVR
+        },
+        {
+          path:'/attribute/gpr',
+          name:'GPR分析',
+          component:GPR
         },
       ]
     }
