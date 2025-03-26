@@ -22,11 +22,11 @@
 
         <div v-show="showCharts" style="margin-top: 20px; display: block; text-align: center;">
           <!-- 高维空间散点图 -->
-          <div id="scatterChart" ref="scatterChart" style="width: 80%; height: 500px; margin: 0 auto;"></div>
+          <div id="scatterChart" ref="scatterChart" style="width: 100%; max-width: 900px; height: 500px; margin: 0 auto;"></div>
 
           <el-button style="display: block; margin-left: 0;" type="success" @click="downloadFile">聚类结果下载</el-button>
 
-          <div style="margin-top: 20px; padding: 10px; background-color: #f5f7fa; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+          <div style="margin-top: 10px; padding: 10px; background-color: #f5f7fa; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
 
             <div style="margin: 30px 0; padding: 20px; background-color: #f0f2f5; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); text-align: center;">
               <h3 style="margin-bottom: 15px; font-size: 24px; font-weight: bold; color: #303133;">
@@ -35,7 +35,7 @@
             </div>
 
             <!-- F 值柱状图 -->
-            <div id="barChart" ref="barChart" style="width: 70%; height: 500px; margin: 20px auto 0;"></div>
+            <div id="barChart" ref="barChart" style="width: 100%; max-width: 900px; height: 500px; margin: 0 auto;"></div>
 
             <el-button type="primary" @click="showSentences = true" style="display: block; margin-left: 0;">
               构效关系提取
@@ -47,8 +47,12 @@
               <el-table :data="sentences" border style="margin-top: 20px;">
                 <el-table-column label="选择">
                   <template v-slot="{ row }">
-                    <el-checkbox v-model="selectedSentences" :label="row.id">
-                      {{ row.content }}
+                    <el-checkbox
+                      v-model="selectedSentences"
+                      :label="row.id"
+                      style="white-space: normal;"
+                    >
+                      <span style="white-space: normal;">{{ row.content }}</span>
                     </el-checkbox>
                   </template>
                 </el-table-column>
@@ -81,10 +85,10 @@ export default {
       scatterData: [],
       featureImportanceData: [],
       sentences: [
-        { id: 1, content: "𝑎𝑣𝑔_𝑅_𝑋和𝑎𝑣𝑔_𝑅_𝑀越大，能量势垒值越小。" },
-        { id: 2, content: "𝑎𝑣𝑔_𝑅_𝑋更小的化合物，\n" +
-            "晶胞尺寸𝑎和𝑉、多面体体积𝑉_𝑋𝑂4和𝑉_𝑁𝑎(1)𝑂6、通道尺寸𝐵𝑇1、𝑀𝑖𝑛_𝐵𝑇和𝑅𝑇\n" +
-            "更大，BVSE 能量势垒值更小。" },
+        { id: 1, content: "𝑎𝑣𝑔_𝑅_𝑋和𝑎𝑣𝑔_𝑅_𝑀越大，BVSE 能量势垒值越小。" },
+        { id: 2, content: "𝑎𝑣𝑔_𝑅_𝑋更小的化合物具有更大的晶胞尺寸（𝑎 和 𝑉），从而导致 BVSE 能量势垒值更小。" },
+        { id: 3, content: "𝑎𝑣𝑔_𝑅_𝑋更小的化合物具有更大的多面体体积（𝑉_𝑋𝑂4 和 𝑉_𝑁𝑎(1)𝑂6），从而降低 BVSE 能量势垒值。" },
+        { id: 4, content: "𝑎𝑣𝑔_𝑅_𝑋更小的化合物具有更大的通道尺寸（𝐵𝑇1、𝑀𝑖𝑛_𝐵𝑇 和 𝑅𝑇），从而使 BVSE 能量势垒值更小。" }
       ],
       selectedSentences: [], // 选择的句子 ID
       loading: true
@@ -228,8 +232,6 @@ export default {
       });
     },
 
-
-
     drawBarChart() {
       const chart = echarts.init(this.$refs.barChart);
       const features = this.featureImportanceData.map(f => f.Feature);
@@ -238,33 +240,44 @@ export default {
       const option = {
         title: { text: "特征重要性", left: "center" },
         tooltip: {
-          trigger: "item", // 悬停时显示具体数值
+          trigger: "item",
           formatter: (params) => `${params.name}: ${params.value.toFixed(2)}`
         },
-        xAxis: { type: "value" },  // 使柱子变横向
+        grid: {
+          left: 130,
+          right: 30,
+          top: 30,
+          bottom: 30
+        },
+        xAxis: { type: "value" },
         yAxis: {
           type: "category",
           data: features,
           axisLabel: {
-            interval: 0,  // 确保所有标签都显示
-            fontSize: 12,  // 调整字体大小
+            interval: 0,
+            fontSize: 13,
+            formatter: function (value) {
+              // 你也可以换成自动省略或换行
+              return value.length > 18 ? value.slice(0, 18) + '…' : value;
+            }
           }
         },
         series: [{
           type: "bar",
           data: fValues.map((value, index) => ({
             value: value,
-            itemStyle: { color: "#3498db" }, // 默认颜色
+            itemStyle: { color: "#3498db" },
             emphasis: {
-              itemStyle: { color: "#e74c3c", barWidth: "80%" } // 鼠标悬停时放大 & 变色
+              itemStyle: { color: "#e74c3c", barWidth: "80%" }
             }
           })),
-          barWidth: "60%"  // 默认柱状图宽度
+          barWidth: "60%"
         }]
       };
 
       chart.setOption(option);
     },
+
 
 
     downloadFile() {
@@ -331,4 +344,9 @@ export default {
 #app {
   padding: 20px;
 }
+
+html, body, #app, .el-container, .el-main {
+  height: 100%;
+}
+
 </style>
