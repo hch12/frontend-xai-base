@@ -1,16 +1,23 @@
 <template>
-  <div>
-    <h1>Multiple Linear Regression构效分析</h1>
-    <br>
-    <div>
-      <div v-for="(item, index) in Name" :key="index">
-        <div v-if="Importance[index] * PCC[index] > 0 && Importance[index] > 0" class="font">
-          {{ item }} 得出结果与预测方向一致，对激活能有
-          <div class="positive">正向作用</div>
-        </div>
-        <div v-if="Importance[index] * PCC[index] > 0 && Importance[index] < 0" class="font">
-          {{ item }} 得出结果与预测方向一致，对激活能有
-          <div class="negative">负向作用</div>
+  <!-- 动态版关系展示 -->
+  <div class="section">
+    <h2>关键构效关系总结</h2>
+    <div class="relation-list">
+      <div v-for="(rel, index) in relations" :key="index" class="relation-item">
+        <div class="relation-index">R{{ index + 1 }}</div>
+        <div class="relation-content">
+          <strong>{{ rel.description }}</strong>
+          <span class="direction" :class="rel.trend">
+            {{ rel.direction }}
+          </span>
+          <el-tooltip v-if="rel.trend === 'positive'" effect="light">
+            <template #content>关键预测因子</template>
+            <i class="el-icon-info tip-icon"></i>
+          </el-tooltip>
+          <el-tooltip v-else-if="rel.description.includes('熵')" effect="light">
+            <template #content>最具区分性指标</template>
+            <i class="el-icon-info tip-icon"></i>
+          </el-tooltip>
         </div>
       </div>
     </div>
@@ -18,84 +25,109 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
-  name: "MLR_analysis",
+  name: 'KNN_analysis',
   data() {
     return {
-      Name: [],
-      Importance: [],
-      PCC: []
-    };
-  },
-  methods: {
-    GetMlrPicture() {
-      this.loading = true; // 开始加载时显示加载符号
-      this.$axios.post('/user/getMlrPicture').then(res => {
-        if (res.data.code === 1) {
-          const data = JSON.parse(res.data.data);
-          const list = data.list;
-          this.Name = [];
-          this.Importance = [];
-          this.PCC = [];
-          for (const item of list) {
-            this.Name.push(item.Name);
-            this.Importance.push(item.Importance);
-            this.PCC.push(item.PCC);
-          }
-          // 数据加载完后，更新图表的 option
-          this.updateChart();
-        } else {
-          this.$notify({
-            title: '警告',
-            message: '无法获取数据',
-            type: 'warning'
-          });
-        }
-        this.loading = false; // 数据加载完成后隐藏加载符号
-      });
+      relations: []
     }
   },
   mounted() {
-    // 在 mounted 生命周期钩子中初始化图表
-    this.GetMlrPicture(); // 初始时先请求数据
+    this.getKnnInformation()
+  },
+  methods: {
+    getKnnInformation() {
+      axios.get('user/MLRAnalyze').then(res => {
+        if (res.data.code === 1) {
+          try {
+            const parsedData = JSON.parse(res.data.data)
+            this.relations = parsedData.list || []
+          } catch (e) {
+            console.error('数据解析错误:', e)
+          }
+        }
+      }).catch(error => {
+        console.error('请求出错:', error)
+      })
+    }
   }
-};
+}
 </script>
 
 <style scoped>
-h1 {
-  text-align: center;
+.analysis-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 0 15px;
+}
+
+.section {
+  margin-bottom: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+h2 {
   color: #333;
+  font-size: 18px;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
 }
 
-.positive,
-.negative {
-  font-size: 16px;
+.relation-list {
+  display: grid;
+  gap: 12px;
+}
+
+.relation-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed #eee;
+}
+
+.relation-index {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  background: #f5f7fa;
+  border-radius: 50%;
+  margin-right: 12px;
   font-weight: bold;
-  margin-left: 5px; /* 让两者之间有间隔 */
+  color: #409EFF;
 }
 
-.positive {
-  color: green;
+.relation-content {
+  flex: 1;
+  font-size: 14px;
 }
 
-.negative {
-  color: red;
+.direction {
+  margin-left: 8px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 13px;
 }
 
-.font {
-  font-size: 16px;
-  font-weight: bold;
-  margin: 10px 0;
+.direction.negative {
+  background: #fef0f0;
+  color: #f56c6c;
 }
 
-/* 增加一些字体样式 */
-div {
-  font-family: 'Arial', sans-serif;
+.direction.positive {
+  background: #f0f9eb;
+  color: #67c23a;
 }
 
-/* 如果需要让文本在同一行显示 */
-.font div {
-  display: inline; /* 让 '正向作用' 和 '负向作用' 在同一行显示 */
+.tip-icon {
+  margin-left: 8px;
+  color: #909399;
+  cursor: help;
 }
 </style>

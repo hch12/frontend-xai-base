@@ -1,19 +1,34 @@
 <template>
+
   <div>
-    <h1>构建特征决策表</h1>
-    <br>
+      <h1>构建特征决策表</h1>
+      <br>
+      <div class="radio-container">
+        <el-radio v-model="radio" label="1" >直接训练</el-radio>
+        <el-radio v-model="radio" label="2">使用预制数据</el-radio>
+      </div>
+    <div v-if="radio==1">
     <div class="block">
       <span class="demonstration">重复执行次数</span>
       <el-slider v-model="repeat" :min="1" :max="200"></el-slider>
     </div>
     <br>
-
     <div class="block">
       <span class="demonstration">迭代次数</span>
       <el-slider v-model="iteration" :min="1" :max="50"></el-slider>
     </div>
     <br>
-
+    </div>
+    <div v-if="radio==2">
+      <el-select v-model="value" placeholder="请选择">
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+    </div>
     <div style="display: flex;justify-self: flex-end">
       <el-button type="primary" round @click="GetfeatureTable">获取特征表</el-button>
     </div>
@@ -53,6 +68,7 @@
       </div>
 
       <div style="display: flex;justify-self: center">
+        <br>
         <el-pagination
           background
           layout="prev, pager, next"
@@ -77,13 +93,19 @@ export default {
       repeat: 100,
       iteration: 2,
       pageSize: 10, // 初始化 pageSize
+      radio: '1',
       value1: 'gpr_feature_table',
+      value: '',
       options1: [
         { value: 'gpr_feature_table', label: 'Gaussian Process Regression决策表' },
         { value: 'knn_feature_table', label: 'K-Nearest Neighbors决策表' },
         { value: 'mlr_feature_table', label: 'Multiple Linear Regression决策表' },
         { value: 'svr_feature_table', label: 'Support Vector Regression决策表' }
       ],
+      options:
+        [{value: '001', label: '50数据项'},
+        {value: '002', label: '100数据项'},
+        {value: '003', label: '200数据项'}],
       tableData: [], // 初始化表格数据
       total: 0, // 初始化总记录数
       currentPage: 1, // 当前页数
@@ -107,7 +129,9 @@ export default {
         PageSize: this.pageSize,
         Value1: this.value1,
         Repeat: this.repeat,
-        Iteration: this.iteration
+        Iteration: this.iteration,
+        Value:this.value,
+        Radio:this.radio
       };
       this.$axios.post('/user/FeatureTable', params).then(res => {
         if (res.data.code === 1) {
@@ -198,5 +222,51 @@ export default {
 h1, h2, h3 {
   text-align: center;
   color: #333;
+}
+/* 单选按钮容器样式 */
+.radio-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px; /* 增加两个选项之间的间距 */
+  margin-bottom: 20px;
+}
+
+/* 单选按钮自定义样式 */
+.radio-container >>> .el-radio {
+  margin: 0;
+}
+
+.radio-container >>> .el-radio__input {
+  transform: scale(1.3); /* 增大单选圆圈 */
+  margin-right: 8px;
+}
+
+.radio-container >>> .el-radio__label {
+  font-size: 16px;
+  padding-left: 5px;
+}
+
+/* 滑块样式调整 */
+.block {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.demonstration {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* 表格区域样式 */
+.el-table {
+  margin: 0 auto;
+}
+
+/* 分页样式 */
+.el-pagination {
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>

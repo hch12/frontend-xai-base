@@ -118,12 +118,14 @@ import MLR from "../relative_analysis/MLR";
 import MLR_analysis from "../relative_analysis/MLR_analysis";
 import SVR from "../relative_analysis/SVR";
 import KNN from "../relative_analysis/KNN";
+import KNN_analysis from "../relative_analysis/KNN_analysis";
 export default {
   components: {
     KNN,
     SVR,
     MLR,
     MLR_analysis,
+    KNN_analysis,
     Construction,
     Step5_positive_kernel,
     step4_kernel,step3_simple_decision_table,step1_featuretable, KnowledgeKernels, DataUpload,step2_cluster},
@@ -167,8 +169,9 @@ export default {
       const componentsMap = {
         "1-1": "MLR",
         "1-2": "MLR_analysis",
+        "2-1": "KNN",
         "3-1": "SVR",
-        "2-1": "KNN"
+        "2-2": "KNN_analysis",
       };
       this.currentComponent = componentsMap[index] || "MLR"; // 根据索引动态加载组件
     },

@@ -1,5 +1,5 @@
 <template>
-  <div ref="treeChart" style="width: 100%; height: 600px;"></div>
+  <div ref="treeChart" style="width: 100%; height: 700px;"></div>
 </template>
 
 <script>
@@ -10,23 +10,19 @@ export default {
   name: 'TreeChart',
   data() {
     return {
-      treeData: null, // 存储转换后的树形结构数据
-      chart: null // 存储ECharts实例
+      treeData: null,
+      chart: null
     };
   },
   mounted() {
-    this.GetKnnPicture(); // 组件挂载后获取数据
+    this.GetKnnPicture();
   },
   methods: {
-    // 1. 从后端获取数据
     GetKnnPicture() {
-      this.loading = true;
       axios.post('/user/getKnnPicture').then(res => {
         if (res.data.code === 1) {
           const data = JSON.parse(res.data.data);
-          const list = data.list;
-          console.log('获取到的树形数据:', list);
-          this.updateChart(list);
+          this.updateChart(data.list);
         } else {
           this.$notify({
             title: '警告',
@@ -34,97 +30,135 @@ export default {
             type: 'warning'
           });
         }
-        this.loading = false;
       });
     },
 
-    // 2. 将扁平化数据转换为树形结构
     buildTree(flatData) {
-      let tree = [];
-      let map = {}; // 存储所有节点
+      const map = new Map();
+      const tree = [];
+
       flatData.forEach(item => {
-        map[item.id] = { ...item, children: [] };
+        map.set(item.id, {
+          ...item,
+          children: [],
+          depth: 0
+        });
       });
+
+      const calculateDepth = (node, depth) => {
+        node.depth = depth;
+        (node.children || []).forEach(child => calculateDepth(child, depth + 1));
+      };
+
       flatData.forEach(item => {
-        if (item.parentId === -1) tree.push(map[item.id]);
-        else if (map[item.parentId]) map[item.parentId].children.push(map[item.id]);
+        const node = map.get(item.id);
+        if (item.parentId === -1) {
+          tree.push(node);
+          calculateDepth(node, 1);
+        } else {
+          const parent = map.get(item.parentId);
+          if (parent) {
+            parent.children.push(node);
+            parent.isLeaf = false;
+          }
+        }
       });
+
+      const calculateLeaves = (node) => {
+        if (!node.children || node.children.length === 0) {
+          node.remainingLeaves = 1;
+          return 1;
+        }
+
+        let count = 0;
+        node.children.forEach(child => {
+          count += calculateLeaves(child);
+        });
+        node.remainingLeaves = count;
+        return count;
+      };
+
+      tree.forEach(root => calculateLeaves(root));
       return tree;
     },
 
-    // 3. 初始化 ECharts 树形图
     updateChart(flatData) {
       this.treeData = this.buildTree(flatData);
       if (!this.treeData) return;
 
-      if (this.chart) {
-        this.chart.dispose();
-      }
+      if (this.chart) this.chart.dispose();
       this.chart = echarts.init(this.$refs.treeChart);
 
       const setEdgeColor = (node) => {
         if (!node.children || node.children.length === 0) return;
-        const leftColor = '#FFA500';
-        const rightColor = '#0000FF';
+
+        const colorPalette = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD'];
         node.children.forEach((child, index) => {
-          child.lineStyle = { width: 2, color: index === 0 ? leftColor : rightColor };
+          child.lineStyle = {
+            width: 2.5,
+            color: colorPalette[index % colorPalette.length],
+            curveness: node.depth === 1 ? 0.3 : 0.2
+          };
           setEdgeColor(child);
         });
       };
 
-      setEdgeColor(this.treeData[0]);
+      this.treeData.forEach(setEdgeColor);
 
       const option = {
         tooltip: {
           trigger: 'item',
-          triggerOn: 'mousemove',
-          // 显示公式而不是整个节点对象
-          formatter: params => {
-            return params.data.formula ? params.data.formula : 'No formula available';
+          formatter: ({ data }) => {
+            if (data.formula) return data.formula;
+            return `值: ${data.value} | 剩余节点: ${data.remainingLeaves}`;
           }
         },
-        series: [
-          {
-            type: 'tree',
-            id: 0,
-            name: 'tree1',
-            data: this.treeData,
-            top: '5%',   // 让树的间隔更大
-            left: '5%',
-            bottom: '5%',
-            right: '5%',
-            symbolSize:3,
-            edgeShape: 'polyline',
-            edgeForkPosition: '63%',
-            initialTreeDepth: -1,  // 不限制树的深度
-            lineStyle: { width: 1 },
+        series: [{
+          type: 'tree',
+          data: this.treeData,
+          top: '2%',
+          left: '2%',
+          bottom: '2%',
+          right: '2%',
+          symbolSize: 11,
+          initialTreeDepth: 4,
+          lineStyle: {
+            width: 2,
+            color: '#999'
+          },
+          label: {
+            position: 'left',
+            verticalAlign: 'middle',
+            align: 'right',
+            fontSize: 10,
+            color: '#2c3e50',
+            fontWeight: 'bold',
+            formatter: ({ data }) => {
+              // 非叶子节点显示剩余节点数
+              if (data.children && data.children.length > 0) {
+                return `(${data.remainingLeaves})`;
+              }
+              // 叶子节点只显示数值
+              return data.value !== -1 ? data.value : '';
+            }
+          },
+          leaves: {
             label: {
-              show: true,
               position: 'left',
               verticalAlign: 'middle',
-              align: 'right',
-              fontSize: 7,
-              formatter: params => params.data.value !== -1 ? params.data.value : ''
-            },
-            leaves: {
-              label: {
-                position: 'left',
-                verticalAlign: 'middle',
-                align: 'left',
-                fontSize: 8,
-                distance:1,
-                formatter: params => params.data.value !== -1 ? params.data.value : ''
-              }
-            },
-            emphasis: { focus: 'descendant' },
-            expandAndCollapse: true,  // 设置为 false，初始化时不需要点击展开
-            animationDuration: 550,
-            animationDurationUpdate: 750,
-            orient: 'vertical',
-            roam: true,
-            inverse: true
-          }
-        ]
+              align: 'left',
+              fontSize: 12,
+              distance: 18,
+              color: '#e74c3c',
+              // 确保叶子节点不显示个数
+              formatter: ({ data }) => data.value !== -1 ? data.value : ''
+            }
+          },
+          expandAndCollapse: true,
+          animationDuration: 550,
+          orient: 'vertical',
+          roam: 'move'
+        }]
       };
 
       this.chart.setOption(option);
@@ -132,7 +166,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-/* 自定义样式 */
-</style>

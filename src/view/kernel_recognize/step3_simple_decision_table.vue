@@ -98,6 +98,7 @@ export default {
         if (res.data.code === 1) {
           const responsedata = JSON.parse(res.data.data);
           this.tableData=responsedata.list;
+          this.process=false;
         } else {
           this.$notify({
             title: '警告',

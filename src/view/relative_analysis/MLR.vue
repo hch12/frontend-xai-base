@@ -32,10 +32,28 @@ export default {
         },
         grid: {
           top: 80,
-          bottom: 30,
-          left: '10%',
-          right: '10%'
+          bottom: 30,  // 恢复底部间距
+          left: '8%',
+          right: '8%' // 为右侧滑块腾出空间
         },
+        dataZoom: [{
+          type: 'slider',
+          orient: 'vertical', // 设置为垂直方向
+          yAxisIndex: 0,
+          startValue: 0,
+          endValue: 9,
+          right: '2%',        // 定位到右侧
+          top: '5%',         // 从顶部15%位置开始
+          bottom: '5%',      // 到底部15%位置结束
+          width: 12,         // 滑块宽度
+          height: 'auto',    // 高度自适应
+          fillerColor: '#8B8B8B',
+          borderColor: '#999',
+          showDetail: true,
+          zoomLock: true,
+          filterMode: 'filter',
+          brushSelect: false // 禁止框选
+        }],
         xAxis: {
           type: 'value',
           position: 'top',
@@ -64,7 +82,7 @@ export default {
         },
         series: [
           {
-            name: 'Positive Cost',
+            name: 'PCC',
             type: 'bar',
             label: {
               show: true,
@@ -76,7 +94,7 @@ export default {
             data: []  // 留空，稍后用动态数据填充
           },
           {
-            name: 'Negative Cost',
+            name: 'LC',
             type: 'bar',
             label: {
               show: true,
@@ -134,7 +152,7 @@ export default {
         },
         series: [
           {
-            name: 'Positive Cost',
+            name: 'Importance',
             type: 'bar',
             label: {
               show: true,
@@ -146,7 +164,7 @@ export default {
             data: []  // 留空，稍后用动态数据填充
           },
           {
-            name: 'Negative Cost',
+            name: 'PCC',
             type: 'bar',
             label: {
               show: true,
