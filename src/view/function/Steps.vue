@@ -119,11 +119,13 @@ import MLR_analysis from "../relative_analysis/MLR_analysis";
 import SVR from "../relative_analysis/SVR";
 import KNN from "../relative_analysis/KNN";
 import KNN_analysis from "../relative_analysis/KNN_analysis";
+import GPR from "../relative_analysis/GPR";
 export default {
   components: {
     KNN,
     SVR,
     MLR,
+    GPR,
     MLR_analysis,
     KNN_analysis,
     Construction,
@@ -172,6 +174,7 @@ export default {
         "2-1": "KNN",
         "3-1": "SVR",
         "2-2": "KNN_analysis",
+        "4-1": "GPR",
       };
       this.currentComponent = componentsMap[index] || "MLR"; // 根据索引动态加载组件
     },
