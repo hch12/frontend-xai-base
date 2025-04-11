@@ -103,8 +103,8 @@ export default {
         { value: 'svr_feature_table', label: 'Support Vector Regression决策表' }
       ],
       options:
-        [{value: '001', label: '50数据项'},
-        {value: '002', label: '100数据项'},
+        [{value: '001', label: '100数据项'},
+        {value: '002', label: '150数据项'},
         {value: '003', label: '200数据项'}],
       tableData: [], // 初始化表格数据
       total: 0, // 初始化总记录数
